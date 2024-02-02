@@ -1,3 +1,9 @@
+# power estimate for overdose prevention centres in Sandwell and Cardiff
+
+# ----------------------
+# sources of assumptions
+# ----------------------
+
 # hospital admissions
 # https://digital.nhs.uk/data-and-information/publications/statistical/statistics-on-public-health/2023/data-tables
 # 22.7/100,000 admissions with primary diagnosis of poisoning by drug misuse
@@ -25,10 +31,16 @@
 # 35000 per month in England
 # 36500 per month in England & Wales
 
-# simulate CITS assuming no secular trend
-# 36 months before & 12 months after
+# -----------------------------
+# function to do one simulation
+# -----------------------------
 
-# functions
+# before - number of periods before the intervention
+# after - number of periods after the intervention
+# effect - rate ratio
+# basei - baseline count of events per period before the intervention in the intervention area
+# basec - count of events per period in the control area
+# assume no secular trend
 
 sim <- function(before = 36, after = 12, effect = 0.9, basei = 113, basec = 35000) {
   cts <- rpois(before + after, basec)
@@ -41,6 +53,10 @@ sim <- function(before = 36, after = 12, effect = 0.9, basei = 113, basec = 3500
   summary(m)$coef[5,4]
 }
 
+# -----------------------------------------------------
+# function to do multiple simulations and esimate power
+# -----------------------------------------------------
+
 power <- function(B = 5000, ...) {
   p <- sapply(seq_len(B), function (x) {
     if (x %% 100 == 0) print (x)
@@ -49,7 +65,9 @@ power <- function(B = 5000, ...) {
   mean(p < 0.05)
 }
 
-# estimate effects
+# --------------
+# estimate power
+# --------------
 
 effects <- seq(0.75, 1, 0.01)
 power_estimates <- sapply(effects, function (x) power(effect = x))
